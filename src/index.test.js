@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { mount } from 'vue-test-utils'
 
-import TestList from '../helpers/test-list'
+import TestList from '../test-helpers/test-list'
 
 Object.defineProperties(window.HTMLElement.prototype, {
   offsetHeight: {
