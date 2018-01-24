@@ -32,7 +32,7 @@ High level component for virtual list where each item height is not known before
 </template>
 
 <script>
-import VueAutoVirtualScrollList from 'vue-auto=virtual-scroll-list'
+import VueAutoVirtualScrollList from 'vue-auto-virtual-scroll-list'
 
 export default {
   ...
@@ -44,7 +44,7 @@ export default {
 
 ### With jsx
 ```jsx
-import VueAutoVirtualScrollList from 'vue-auto=virtual-scroll-list'
+import VueAutoVirtualScrollList from 'vue-auto-virtual-scroll-list'
 
 export default {
   ...

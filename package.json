@@ -1,10 +1,13 @@
 {
   "name": "vue-auto-virtual-scroll-list",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A vue (2.x) component for large lists with variable item height",
   "author": "Cristóvão Trevisan <cristovao.trevisan@gmail.com>",
   "main": "dist/index.js",
   "scripts": {
+    "start:docs": "webpack-dev-server --config docs/webpack.config.js",
+    "build:docs": "NODE_ENV=production webpack --config docs/webpack.config.js -p --progress --profile --colors",
+    "prepublish": "npm run build",
     "build": "babel src --out-dir dist --ignore '**/*.test.js'",
     "test:watch": "jest --watch",
     "test": "eslint src && jest"
@@ -13,6 +16,7 @@
   "devDependencies": {
     "babel-core": "^6.22.1",
     "babel-helper-vue-jsx-merge-props": "^2.0.3",
+    "babel-loader": "^7.1.2",
     "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-runtime": "^6.22.0",
     "babel-plugin-transform-vue-jsx": "^3.5.0",
@@ -25,7 +29,9 @@
     "jest": "^22.1.4",
     "vue": "^2.5.13",
     "vue-template-compiler": "^2.5.13",
-    "vue-test-utils": "^1.0.0-beta.11"
+    "vue-test-utils": "^1.0.0-beta.11",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
   },
   "peerDependencies": {
     "vue": "^2"
@@ -34,7 +40,10 @@
     "transform": {
       "^.+js$": "<rootDir>/node_modules/babel-jest"
     },
-    "testPathIgnorePatterns": ["/node_modules/", "/dist/"],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
     "mapCoverage": true
   }
 }
