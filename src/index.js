@@ -2,12 +2,12 @@ import Vue from 'vue'
 
 const styles = {
   container: {
-    overflow: 'scroll',
+    overflowY: 'scroll',
   },
 }
 
 export default {
-  name: 'auto-list',
+  name: 'auto-virtual-scroll-list',
   props: {
     totalHeight: { type: Number, required: true },
     defaultHeight: { type: Number, required: true },
@@ -51,13 +51,16 @@ export default {
     // nextTick -> need to wait for the offset to be reloaded if scroll
     // changed (which happens at render)
     Vue.nextTick(() => {
-      const { $children, offset } = this
+      const { $el: { children: htmlChildren }, offset } = this
+      const htmlAsArray = Array.from(htmlChildren)
+      const children = htmlAsArray.slice(1, htmlAsArray.length - 1) // remove empty divs
       // updated heights based on rendered items
-      $children.forEach((regra, i) => {
+      children.forEach((child, i) => {
         const index = i + offset
-        if (!this.heights[index]) this.heights[index] = regra.$el.offsetHeight
+        if (!this.heights[index]) this.heights[index] = child.offsetHeight
       })
     })
+    this.$emit('updated')
   },
   render(h) { // eslint-disable-line no-unused-vars
     const {
@@ -90,9 +93,10 @@ export default {
     }
     // add extra items (from prop)
     for (let i = 0; i < extraItems; i += 1) {
-      index += 1
       const item = defaultItems[index]
+      if (item === undefined) break
       items.push(item)
+      index += 1
       heightAcc += heights[index] || defaultHeight
     }
     // calculate space after
