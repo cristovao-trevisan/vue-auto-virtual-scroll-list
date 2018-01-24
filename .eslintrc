@@ -1,0 +1,9 @@
+{
+  "env": {
+    "jest": true
+  },
+  "extends": ["plugin:vue/essential", "airbnb-base"],
+  "rules": {
+    "semi": ["error", "never"]
+  }
+}
