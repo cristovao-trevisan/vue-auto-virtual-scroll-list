@@ -16,7 +16,7 @@ High level component for virtual list where each item height is not known before
 ## Usage
 
 ### With template
-```vue
+```html
 <template>
   <VueAutoVirtualScrollList
     :totalHeight="800"
