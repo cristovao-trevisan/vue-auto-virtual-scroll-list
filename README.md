@@ -9,9 +9,9 @@ High level component for virtual list where each item height is not known before
 
 *Prop* | *Type* | *Required/Default* | *Description* |
 :--- | :--- | :--- | :--- |
-| totalHeight | Number | ✓ | Container height: used to choose # of components rendered  |
-| defaultHeight | Number | ✓ | Item height guess, best fit is the minimum height |
-| extraItems | Number | 1 | Extra items rendered (default 1 guarantee no empty space at last element) |
+| totalHeight | Number | ✓ | Container height (px): used to calculate the # of components rendered  |
+| defaultHeight | Number | ✓ | Item expected height (px). Set to your item's minimum height |
+| extraItems | Number | 1 | Extra items rendered (extra items rendered to avoid empty space while scrolling) |
 
 ## Usage
 
