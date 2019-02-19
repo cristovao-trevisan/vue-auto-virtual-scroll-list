@@ -4,6 +4,7 @@
   },
   "extends": ["plugin:vue/essential", "airbnb-base"],
   "rules": {
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "object-curly-newline": 0
   }
 }

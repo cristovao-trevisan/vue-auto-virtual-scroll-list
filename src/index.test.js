@@ -9,7 +9,7 @@ Object.defineProperties(window.HTMLElement.prototype, {
   },
 })
 
-const testHeights = [10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90]
+const testHeights = [10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 40, 20, 15, 70]
 const testItems = testHeights.map(height => ({ name: `Test Item #${height}`, height }))
 const propsData = {
   height: 100,
@@ -17,12 +17,23 @@ const propsData = {
   items: testItems,
   extraItems: 0,
 }
+const testItemsCalculations = testHeights.map((item, index) => {
+  let accHeight = 0
+  let current = index
+  while (testHeights[current] && accHeight < propsData.height) {
+    accHeight += testHeights[current]
+    current += 1
+  }
+  const scroll = testHeights.slice(0, index).reduce((a, b) => a + b, 0)
+  return { item, accHeight, scroll, items: current - index }
+})
+// console.log(testItemsCalculations)
 
 /**
  * @returns {Promise.<void>}
  */
 const updateList = list => new Promise((resolve) => {
-  list.update() // udpate number of items
+  list.update() // update number of items
   Vue.nextTick(() => {
     list.update() // update heights
     Vue.nextTick(resolve)
@@ -54,14 +65,32 @@ test('should calculate correct offset', () => {
   })
 })
 
-test('should render only necessary elements', () => {
-  const testList = mount(TestList, { propsData })
+describe('should render only necessary elements', () => {
+  test('manual test', () => {
+    const testList = mount(TestList, { propsData })
 
-  expect(testList.vm.$el.children.length).toBe(12) // this includes empty divs
-  expect(testList.vm.$children[0].$children.length).toBe(10) // only items rendered (100 / 10)
+    expect(testList.vm.$el.children.length).toBe(12) // this includes empty divs
+    expect(testList.vm.$children[0].$children.length).toBe(10) // only items rendered (100 / 10)
 
-  return updateList(testList)
-    .then(() => expect(testList.vm.$children[0].$children.length).toBe(5))
+    return updateList(testList)
+      .then(() => expect(testList.vm.$children[0].$children.length).toBe(5))
+  })
+
+  test('for every calculation', async () => {
+    const testList = mount(TestList, { propsData })
+
+    for (let index = 0; index < testItemsCalculations.length; index += 1) {
+      /* eslint-disable no-await-in-loop */
+      const expected = testItemsCalculations[index]
+      // set new scroll
+      testList.vm.$children[0].$el.scrollTop = expected.scroll
+      testList.vm.$children[0].$el.onscroll()
+      // re-render
+      await updateList(testList)
+      expect(testList.vm.$children[0].$children.length).toBe(expected.items)
+      expect(testList.vm.$children[0].offset).toBe(index)
+    }
+  })
 })
 
 test('should reset when items length changes', () => {
