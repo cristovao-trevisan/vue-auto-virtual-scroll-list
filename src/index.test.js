@@ -9,14 +9,12 @@ Object.defineProperties(window.HTMLElement.prototype, {
   },
 })
 
-const testHeights = [10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 40, 20, 15, 70]
-const testItems = testHeights.map(height => ({ name: `Test Item #${height}`, height }))
-const propsData = {
-  height: 100,
-  defaultHeight: 10,
-  items: testItems,
-  extraItems: 0,
-}
+const heightToItemMapper = height => ({ name: `Test Item #${height}`, height })
+const testHeights = [10, 15, 20, 25, 30, 40, 50, 120, 70, 80, 90, 40, 20, 15, 70]
+const testItems = testHeights.map(heightToItemMapper)
+const renderCount = 10
+const height = 100
+const propsData = { height, items: testItems, defaultHeight: height / renderCount, extraItems: 0 }
 const testItemsCalculations = testHeights.map((item, index) => {
   let accHeight = 0
   let current = index
@@ -33,6 +31,7 @@ const testItemsCalculations = testHeights.map((item, index) => {
  * @returns {Promise.<void>}
  */
 const updateList = list => new Promise((resolve) => {
+  list.vm.$children[0].$el.onscroll()
   list.update() // update number of items
   Vue.nextTick(() => {
     list.update() // update heights
@@ -46,8 +45,8 @@ test('should cache correct rendered height', () => {
   expect(testList.vm.$children[0].heights.length).toBe(0)
 
   return updateList(testList).then(() => {
-    expect(testList.vm.$children[0].heights.length).toBe(10)
-    expect(testList.vm.$children[0].heights).toEqual(testHeights.slice(0, 10))
+    expect(testList.vm.$children[0].heights.length).toBe(renderCount)
+    expect(testList.vm.$children[0].heights).toEqual(testHeights.slice(0, renderCount))
   })
 })
 
@@ -60,9 +59,44 @@ test('should calculate correct offset', () => {
     expect(testList.vm.$children[0].offset).toBe(0)
     // set new scroll
     testList.vm.$children[0].$el.scrollTop = 40
-    testList.vm.$children[0].$el.onscroll()
     return updateList(testList).then(() => expect(testList.vm.$children[0].offset).toBe(2))
   })
+})
+
+test('should set correct space above', async () => {
+  const index = 6
+  const testList = mount(TestList, { propsData })
+  const { scroll } = testItemsCalculations[index]
+
+  expect(testList.vm.$el.children[0].style.height).toBe('0px')
+  await updateList(testList)
+  testList.vm.$children[0].$el.scrollTop = scroll + (testHeights[index - 1] / 2)
+  await updateList(testList)
+
+  expect(testList.vm.$el.children[0].style.height).toBe(`${scroll}px`)
+})
+
+test('should set correct space after', async () => {
+  const heights = [10, 10, 30, 20, 20, 30, 30]
+  const items = heights.map(heightToItemMapper)
+  const testList = mount(TestList, {
+    propsData: {
+      ...propsData,
+      height: 20,
+      defaultHeight: 10,
+      items,
+      extraItems: 0,
+    },
+  })
+
+  await updateList(testList)
+  testList.vm.$children[0].$el.scrollTop = 20
+  await updateList(testList)
+  testList.vm.$children[0].$el.scrollTop = 0
+  await updateList(testList)
+
+  const spaceAfterItem = testList.vm.$el.children[testList.vm.$el.children.length - 1]
+  expect(spaceAfterItem.style.height).toBe('80px')
 })
 
 describe('should render only necessary elements', () => {
@@ -84,7 +118,6 @@ describe('should render only necessary elements', () => {
       const expected = testItemsCalculations[index]
       // set new scroll
       testList.vm.$children[0].$el.scrollTop = expected.scroll
-      testList.vm.$children[0].$el.onscroll()
       // re-render
       await updateList(testList)
       expect(testList.vm.$children[0].$children.length).toBe(expected.items)
@@ -102,7 +135,6 @@ test('should reset when items length changes', () => {
     expect(testList.vm.$children[0].heights.length).toBe(10)
     // set scroll
     testList.vm.$children[0].$el.scrollTop = 40
-    testList.vm.$children[0].$el.onscroll()
 
     // replace props
     testList.setProps({ items: testItems.concat(95) })
