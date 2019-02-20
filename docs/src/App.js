@@ -65,7 +65,7 @@ export default {
     const renderedHeights = measuredHeights.slice(renderedOffset, renderedOffset + renderedLength)
     const dotsBefore = renderedOffset > 0 ? '...' : ''
     const dotsAfter = renderedOffset + renderedLength < measuredTotal ? '...' : ''
-    console.log(renderedOffset, measuredTotal)
+
     return (
       <div style={styles.container}>
         <VueAutoVirtualScrollList
