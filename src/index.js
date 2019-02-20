@@ -71,7 +71,7 @@ export default {
         const item = defaultItems[lastItemIndex]
         if (item === undefined) break
         items.push(item)
-        lastItemIndex += totalHeight
+        lastItemIndex += 1
         heightAcc += heights[lastItemIndex] || defaultHeight
       }
 
