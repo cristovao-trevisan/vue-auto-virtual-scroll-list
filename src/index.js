@@ -30,21 +30,68 @@ export default {
       this.numberOfItems = false
       this.$refs.container.scrollTop = 0 // reset scroll
     },
-    calculateHiddenSpaceBefore() {
+    calculateSpaceBefore() {
       const {
         scrollTop,
         heights,
         defaultHeight,
       } = this
-      let stopIndex = 0
-      let total = 0
-      for (;;) {
-        const itemHeight = heights[stopIndex] || defaultHeight
-        if (total + itemHeight > scrollTop) break
-        stopIndex += 1
-        total += itemHeight
+      let firstItemIndex = 0
+      let spaceBefore = 0
+      while (true) {
+        const itemHeight = heights[firstItemIndex] || defaultHeight
+        if (spaceBefore + itemHeight > scrollTop) break
+        firstItemIndex += 1
+        spaceBefore += itemHeight
       }
-      return { total, stopIndex }
+
+      this.offset = firstItemIndex // save to use in tests
+      return { spaceBefore, firstItemIndex }
+    },
+    calculateItems(firstItemIndex, paddingTop) {
+      const {
+        $slots: { default: defaultItems = [] },
+        heights,
+        defaultHeight,
+        totalHeight,
+        extraItems,
+      } = this
+      const items = []
+      let heightAcc = paddingTop
+      let lastItemIndex = firstItemIndex
+      for (;
+        heightAcc - paddingTop < totalHeight && lastItemIndex < defaultItems.length;
+        lastItemIndex += 1) {
+        const item = defaultItems[lastItemIndex]
+        items.push(item)
+        heightAcc += heights[lastItemIndex] || defaultHeight
+      }
+      // add extra items (from prop)
+      for (let i = 0; i < extraItems; i += 1) {
+        const item = defaultItems[lastItemIndex]
+        if (item === undefined) break
+        items.push(item)
+        lastItemIndex += totalHeight
+        heightAcc += heights[lastItemIndex] || defaultHeight
+      }
+
+      return { lastItemIndex, items }
+    },
+    calculateSpaceAfter(lastItemIndex) {
+      const {
+        $slots: { default: defaultItems = [] },
+        heights,
+        defaultHeight,
+      } = this
+
+      let paddingBottom = 0
+      let index = lastItemIndex
+      for (;
+        index < defaultItems.length;
+        index += 1) {
+        paddingBottom += heights[index] || defaultHeight
+      }
+      return paddingBottom
     },
   },
   /** Sets callback to update the scrollTop variable */
@@ -79,47 +126,16 @@ export default {
     this.$emit('updated')
   },
   render(h) { // eslint-disable-line no-unused-vars
-    const {
-      $slots: { default: defaultItems = [] },
-      heights,
-      defaultHeight,
-      totalHeight,
-      extraItems,
-    } = this
-    const { total: paddingTop, stopIndex: firstItemIndex } = this.calculateHiddenSpaceBefore()
+    const { spaceBefore, firstItemIndex } = this.calculateSpaceBefore()
+    const { items, lastItemIndex } = this.calculateItems(firstItemIndex, spaceBefore)
+    const spaceAfter = this.calculateSpaceAfter(lastItemIndex)
 
-    let index = firstItemIndex
-    let heightAcc = paddingTop
-    // calculate number of elements shown
-    const items = []
-    this.offset = index
-    for (;
-      heightAcc - paddingTop < totalHeight && index < defaultItems.length;
-      index += 1) {
-      const item = defaultItems[index]
-      items.push(item)
-      heightAcc += heights[index] || defaultHeight
-    }
-    // add extra items (from prop)
-    for (let i = 0; i < extraItems; i += 1) {
-      const item = defaultItems[index]
-      if (item === undefined) break
-      items.push(item)
-      index += 1
-      heightAcc += heights[index] || defaultHeight
-    }
-    // calculate space after
-    let paddingBottom = 0
-    for (;
-      index < defaultItems.length;
-      index += 1) {
-      paddingBottom += heights[index] || defaultHeight
-    }
+    const { totalHeight } = this
     return (
       <div ref="container" style={[styles.container, { height: `${totalHeight}px` }]}>
-        <div style={{ width: '100%', height: `${paddingTop}px` }} /> {/* Empty div with space of ignored items */}
+        <div style={{ width: '100%', height: `${spaceBefore}px` }} />
         { items }
-        <div style={{ width: '100%', height: `${paddingBottom}px` }} /> {/* Same */}
+        <div style={{ width: '100%', height: `${spaceAfter}px` }} />
       </div>
     )
   },
