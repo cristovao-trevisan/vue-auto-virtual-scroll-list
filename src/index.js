@@ -30,6 +30,22 @@ export default {
       this.numberOfItems = false
       this.$refs.container.scrollTop = 0 // reset scroll
     },
+    calculateHiddenSpaceBefore() {
+      const {
+        scrollTop,
+        heights,
+        defaultHeight,
+      } = this
+      let stopIndex = 0
+      let total = 0
+      for (;;) {
+        const itemHeight = heights[stopIndex] || defaultHeight
+        if (total + itemHeight > scrollTop) break
+        stopIndex += 1
+        total += itemHeight
+      }
+      return { total, stopIndex }
+    },
   },
   /** Sets callback to update the scrollTop variable */
   mounted() {
@@ -65,22 +81,15 @@ export default {
   render(h) { // eslint-disable-line no-unused-vars
     const {
       $slots: { default: defaultItems = [] },
-      scrollTop,
       heights,
       defaultHeight,
       totalHeight,
       extraItems,
     } = this
-    let index = 0 // current item being analysed
-    let heightAcc = 0 // cumulative height for the item
-    // calculate space occupied by hidden elements
-    for (;;) {
-      const itemHeight = heights[index] || defaultHeight
-      if (heightAcc + itemHeight > scrollTop) break
-      index += 1
-      heightAcc += itemHeight
-    }
-    const paddingTop = heightAcc // result occupied space
+    const { total: paddingTop, stopIndex: firstItemIndex } = this.calculateHiddenSpaceBefore()
+
+    let index = firstItemIndex
+    let heightAcc = paddingTop
     // calculate number of elements shown
     const items = []
     this.offset = index
