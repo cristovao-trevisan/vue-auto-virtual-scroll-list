@@ -38,6 +38,7 @@ export default {
       } = this
       let firstItemIndex = 0
       let spaceBefore = 0
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const itemHeight = heights[firstItemIndex] || defaultHeight
         if (spaceBefore + itemHeight > scrollTop) break
@@ -62,8 +63,7 @@ export default {
       for (;
         heightAcc - paddingTop < totalHeight && lastItemIndex < defaultItems.length;
         lastItemIndex += 1) {
-        const item = defaultItems[lastItemIndex]
-        items.push(item)
+        items.push(defaultItems[lastItemIndex])
         heightAcc += heights[lastItemIndex] || defaultHeight
       }
       // add extra items (from prop)
@@ -84,14 +84,10 @@ export default {
         defaultHeight,
       } = this
 
-      let paddingBottom = 0
-      let index = lastItemIndex
-      for (;
-        index < defaultItems.length;
-        index += 1) {
-        paddingBottom += heights[index] || defaultHeight
-      }
-      return paddingBottom
+      return defaultItems
+        .slice(lastItemIndex)
+        .map((x, i) => heights[i] || defaultHeight)
+        .reduce((a, b) => a + b, 0)
     },
   },
   /** Sets callback to update the scrollTop variable */
