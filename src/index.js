@@ -86,7 +86,7 @@ export default {
 
       return defaultItems
         .slice(lastItemIndex)
-        .map((x, i) => heights[i] || defaultHeight)
+        .map((x, i) => heights[i + lastItemIndex] || defaultHeight)
         .reduce((a, b) => a + b, 0)
     },
   },

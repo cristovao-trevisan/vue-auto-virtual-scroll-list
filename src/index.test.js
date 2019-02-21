@@ -74,8 +74,8 @@ test('should set correct space above', async () => {
   expect(testList.vm.$el.children[0].style.height).toBe(`${scroll}px`)
 })
 
-test('should set correct space after', async () => {
-  const heights = [10, 10, 30, 20, 20, 30, 30]
+test('should set correct space after with extra items', async () => {
+  const heights = [10, 10, 30, 20, 70, 30.43, 30.30]
   const items = heights.map(heightToItemMapper)
   const testList = mount(TestList, {
     propsData: {
@@ -83,7 +83,7 @@ test('should set correct space after', async () => {
       height: 20,
       defaultHeight: 10,
       items,
-      extraItems: 0,
+      extraItems: 2,
     },
   })
 
@@ -94,7 +94,7 @@ test('should set correct space after', async () => {
   await updateList(testList)
 
   const spaceAfterItem = testList.vm.$el.children[testList.vm.$el.children.length - 1]
-  expect(spaceAfterItem.style.height).toBe('80px')
+  expect(spaceAfterItem.style.height).toBe('90px')
 })
 
 test('should render extra items', async () => {
