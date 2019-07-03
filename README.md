@@ -2,6 +2,7 @@
 High level component for virtual list where each item height is not known before render
 
 [![npm version](https://badge.fury.io/js/vue-auto-virtual-scroll-list.svg)](https://badge.fury.io/js/vue-auto-virtual-scroll-list)
+![package-size](https://badgen.net/bundlephobia/minzip/vue-auto-virtual-scroll-list)
 
 ## [Live Demo](https://cristovao-trevisan.github.io/vue-auto-virtual-scroll-list/)
 
