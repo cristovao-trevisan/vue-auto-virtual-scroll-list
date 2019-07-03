@@ -1,4 +1,13 @@
 {
-  "presets": ["es2015", "stage-2"],
-  "plugins": ["transform-vue-jsx"]
+  "presets": [
+    ["@babel/preset-env", { "targets": "> 0.25%, not dead" }]
+  ],
+  "plugins": [
+    "transform-vue-jsx"
+  ],
+  "env": {
+    "test": {
+      "plugins": ["@babel/plugin-transform-runtime"]
+    }
+  }
 }
