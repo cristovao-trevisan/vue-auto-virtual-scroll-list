@@ -4,6 +4,7 @@
   "description": "A vue (2.x) component for large lists with variable item height",
   "author": "Cristóvão Trevisan <cristovao.trevisan@gmail.com>",
   "main": "dist/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "start:docs": "webpack-dev-server --config docs/webpack.config.js",
     "build:docs": "NODE_ENV=production webpack --config docs/webpack.config.js -p --progress --profile --colors",
