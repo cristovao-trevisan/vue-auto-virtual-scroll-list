@@ -56,12 +56,13 @@ export default {
         defaultHeight,
         totalHeight,
         extraItems,
+        scrollTop,
       } = this
       const items = []
       let heightAcc = paddingTop
       let lastItemIndex = firstItemIndex
       for (;
-        heightAcc - paddingTop < totalHeight && lastItemIndex < defaultItems.length;
+        heightAcc - scrollTop < totalHeight && lastItemIndex < defaultItems.length;
         lastItemIndex += 1) {
         items.push(defaultItems[lastItemIndex])
         heightAcc += heights[lastItemIndex] || defaultHeight

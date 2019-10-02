@@ -152,3 +152,20 @@ test('should reset when items length changes', async (done) => {
     done()
   })
 })
+
+test('should work if item height is greater than total height', async () => {
+  const items = [110, 10, 200, 50].map(heightToItemMapper)
+  const props = { height: 100, items, defaultHeight: 10, extraItems: 0 }
+  const testList = mount(TestList, { propsData: props })
+
+  await updateList(testList)
+  expect(testList.vm.$children[0].$children.length).toBe(1)
+
+  testList.vm.$children[0].$el.scrollTop = 30
+  await updateList(testList)
+  expect(testList.vm.$children[0].$children.length).toBe(3)
+
+  testList.vm.$children[0].$el.scrollTop = 230
+  await updateList(testList)
+  expect(testList.vm.$children[0].$children.length).toBe(2)
+})
