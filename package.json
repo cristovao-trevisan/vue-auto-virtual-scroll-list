@@ -1,6 +1,6 @@
 {
   "name": "vue-auto-virtual-scroll-list",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A vue (2.x) component for large lists with variable item height",
   "author": "Cristóvão Trevisan <cristovao.trevisan@gmail.com>",
   "main": "dist/index.js",
