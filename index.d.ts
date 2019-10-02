@@ -9,6 +9,7 @@ interface Data {
 
 interface Methods {
   reset(): void; 
+  setIndex(index: number): void;
 }
 
 interface Props {
