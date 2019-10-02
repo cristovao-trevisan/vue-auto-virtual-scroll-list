@@ -90,36 +90,72 @@ export default {
         .map((x, i) => heights[i + lastItemIndex] || defaultHeight)
         .reduce((a, b) => a + b, 0)
     },
+    readItemsHeight() {
+      const { $slots: { default: defaultItems = [] }, numberOfItems } = this
+      // if number of items is unknown set it
+      if (!numberOfItems) this.numberOfItems = defaultItems.length
+      // else if number of items changed reset the component
+      else if (numberOfItems !== defaultItems.length) this.reset()
+
+      // nextTick -> need to wait for the offset to be reloaded if scroll
+      // changed (which happens at render)
+      Vue.nextTick(() => {
+        const { $el: { children: htmlChildren }, offset, defaultHeight } = this
+        const htmlAsArray = Array.from(htmlChildren)
+        const children = htmlAsArray.slice(1, htmlAsArray.length - 1) // remove empty divs
+        const newHeights = this.heights.slice(0) // recomputing heights
+        // scrollDiff is used for backward scrolling (where not all items before have known height)
+        let scrollDiff = 0
+        let hasChange = false
+
+        children.forEach((child, i) => {
+          const index = i + offset
+          // if item has been set or updated
+          if (newHeights[index] !== child.offsetHeight) {
+            // if item is in the space before items, update the scroll
+            if (index <= offset) {
+              scrollDiff += child.offsetHeight - (newHeights[index] || defaultHeight)
+            }
+            newHeights[index] = child.offsetHeight
+            hasChange = true
+          }
+        })
+
+        // trigger re-render
+        if (hasChange) {
+          if (this.heights[offset + 1]) this.$refs.container.scrollTop += scrollDiff
+          this.heights = newHeights
+        }
+      })
+    },
+
+    setIndex(index, recursion = true) {
+      const {
+        $slots: { default: defaultItems = [] },
+        defaultHeight, heights,
+      } = this
+      const parsedIndex = index >= defaultItems.length ? defaultItems.length - 1 : index
+      let scrollTop = 1
+      for (let i = 0; i < parsedIndex; i += 1) scrollTop += heights[i] || defaultHeight
+      this.$refs.container.scrollTop = scrollTop
+      this.scrollTop = scrollTop
+      if (recursion) setTimeout(() => this.setIndex(index, false), 50)
+    },
   },
   /** Sets callback to update the scrollTop variable */
   mounted() {
-    const { $refs: { container, scrollTop } } = this
-    container.onscroll = () => {
+    this.$refs.container.onscroll = () => {
+      const { scrollTop } = this
       // listen for change only to avoid loop
-      const newScroll = (container && container.scrollTop) || 0
+      const newScroll = (this.$refs.container.scrollTop) || 0
       if (newScroll !== scrollTop) this.scrollTop = newScroll
     }
+    this.readItemsHeight()
+    this.$emit('updated')
   },
   /** Listen to change in slot items as well as to rendered children height */
   updated() {
-    const { $slots: { default: defaultItems = [] }, numberOfItems } = this
-    // if number of items is unknown set it
-    if (!numberOfItems) this.numberOfItems = defaultItems.length
-    // else if number of items changed reset the component
-    else if (numberOfItems !== defaultItems.length) this.reset()
-
-    // nextTick -> need to wait for the offset to be reloaded if scroll
-    // changed (which happens at render)
-    Vue.nextTick(() => {
-      const { $el: { children: htmlChildren }, offset } = this
-      const htmlAsArray = Array.from(htmlChildren)
-      const children = htmlAsArray.slice(1, htmlAsArray.length - 1) // remove empty divs
-      // updated heights based on rendered items
-      children.forEach((child, i) => {
-        const index = i + offset
-        if (!this.heights[index]) this.heights[index] = child.offsetHeight
-      })
-    })
+    this.readItemsHeight()
     this.$emit('updated')
   },
   render(h) { // eslint-disable-line no-unused-vars

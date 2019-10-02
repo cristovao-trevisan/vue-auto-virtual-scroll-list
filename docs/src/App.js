@@ -25,16 +25,21 @@ const styles = {
   infoItems: {
     textAlign: 'center',
   },
+  setIndexInput: {
+    width: '100px',
+    height: '20px',
+  },
 }
 
 const TOTAL_HEIGHT = 500
 const BASE_HEIGHT = 30
-const items = new Array(30).fill(0).map((x, i) => ({ name: `Item #${i}`, height: BASE_HEIGHT + (Math.random() * 4 * BASE_HEIGHT) }))
+const items = new Array(200).fill(0).map((x, i) => ({ name: `Item #${i}`, height: BASE_HEIGHT + (Math.random() * 4 * BASE_HEIGHT) }))
 
 export default {
   name: 'example-app',
   data() {
     return {
+      index: 0,
       measuredTotal: 0,
       measuredHeights: [],
       renderedLength: Math.ceil(TOTAL_HEIGHT / BASE_HEIGHT),
@@ -43,10 +48,8 @@ export default {
   },
   methods: {
     setCalculatedHeights(measuredHeights) {
-      if (this.measuredTotal !== measuredHeights.length) {
-        this.measuredHeights = measuredHeights
-        this.measuredTotal = measuredHeights.length
-      }
+      this.measuredHeights = measuredHeights
+      this.measuredTotal = measuredHeights.filter(x => !!x).length
     },
     setRenderedLength(renderedLength) {
       if (this.renderedLength !== renderedLength) this.renderedLength = renderedLength
@@ -65,6 +68,10 @@ export default {
     const renderedHeights = measuredHeights.slice(renderedOffset, renderedOffset + renderedLength)
     const dotsBefore = renderedOffset > 0 ? '...' : ''
     const dotsAfter = renderedOffset + renderedLength < measuredTotal ? '...' : ''
+    const setIndex = () => {
+      const { value } = this.$refs.input
+      this.$refs.virtualList.setIndex(Number(value))
+    }
 
     return (
       <div style={styles.container}>
@@ -80,7 +87,7 @@ export default {
           }}
         >
           {items.map((item, index) => (
-              <div key={index} style={[{ height: `${item.height}px`, fontSize: `${item.height * 0.8}px` }, styles.item]}>
+              <div key={index} style={[{ height: `${item.height}px`, fontSize: `${item.height * 0.6}px` }, styles.item]}>
                 { item.name }
               </div>
           ))}
@@ -95,6 +102,14 @@ export default {
           </div>
           <div style={styles.infoItems}>
             Items Rendered: { renderedLength }
+          </div>
+          <div style={styles.infoItems}>
+            <span>Set index: </span>
+            <input
+              style={styles.setIndexInput}
+              type="number" ref="input"
+              onChange={(e) => setIndex(e.target.value)}
+            />
           </div>
         </div>
       </div>

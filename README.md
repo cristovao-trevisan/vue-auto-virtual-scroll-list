@@ -68,6 +68,12 @@ export default {
 }
 ```
 
+## Methods
+
+### `setIndex(index: number)`
+Scroll to the item at `index`.
+This method is not yet stable or tested.
+
 ## How it works
 
 The number of rendered components is calculated by accumulating each item height to see how many fit in
