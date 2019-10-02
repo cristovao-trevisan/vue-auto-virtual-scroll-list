@@ -20,4 +20,4 @@ jobs:
     - name: npm install, build, and test
       run: |
         npm install
-        npx jest --coverage --verbose --ci
+        npm test

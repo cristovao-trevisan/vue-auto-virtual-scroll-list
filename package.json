@@ -12,7 +12,7 @@
     "build": "babel src --out-dir dist --ignore '**/*.test.js'",
     "test:watch": "jest --watch",
     "pretest": "eslint src",
-    "test": "jest --coverage --verbose"
+    "test": "jest --coverage --verbose --ci"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
